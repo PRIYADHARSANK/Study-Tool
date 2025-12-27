@@ -4,6 +4,7 @@ import { FileUpload } from '@/components/app/FileUpload';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Lightbulb, Loader2, BookCheck, FileText, HelpCircle } from 'lucide-react';
+import { HelpGuide } from '@/components/app/HelpGuide';
 
 type PdfFile = {
   name: string;
@@ -70,19 +71,21 @@ export function LeftColumn({ pdfFile, setPdfFile, onGenerateSummary, onGenerateQ
       </div>
       
       <div className="mt-auto">
-        <Card className="bg-primary/5 border-primary/20">
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-primary/10 rounded-lg">
-                <HelpCircle className="h-5 w-5 text-primary" />
+        <HelpGuide>
+          <Card className="bg-primary/5 border-primary/20 hover:bg-primary/10 hover:border-primary/30 cursor-pointer transition-colors">
+            <CardContent className="p-4">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-primary/10 rounded-lg">
+                  <HelpCircle className="h-5 w-5 text-primary" />
+                </div>
+                <div>
+                  <p className="text-sm font-medium">Need help?</p>
+                  <p className="text-xs text-muted-foreground">Check out the guide.</p>
+                </div>
               </div>
-              <div>
-                <p className="text-sm font-medium">Need help?</p>
-                <p className="text-xs text-muted-foreground">Check out the guide.</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        </HelpGuide>
       </div>
 
     </aside>
