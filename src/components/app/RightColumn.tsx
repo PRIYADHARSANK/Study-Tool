@@ -6,6 +6,7 @@ import type { QuizData, ChatMessage, QuizQuestion } from '@/lib/types';
 import { ChatView } from './ChatView';
 import { SummaryView } from './SummaryView';
 import { QuizView } from './QuizView';
+import { Loader2 } from 'lucide-react';
 
 interface RightColumnProps {
   activeView: ActiveView;
@@ -17,8 +18,18 @@ interface RightColumnProps {
   onGenerateQuiz: (previousQuestions?: QuizQuestion[]) => Promise<void>;
   isChatLoading: boolean;
   isQuizLoading: boolean;
+  isSummaryLoading: boolean;
   isPdfUploaded: boolean;
 }
+
+const LoadingPlaceholder = ({ text }: { text: string }) => (
+    <div className="flex items-center justify-center h-full flex-col text-center">
+        <Loader2 className="h-10 w-10 animate-spin text-primary mb-4" />
+        <p className="text-lg font-semibold text-foreground">{text}</p>
+        <p className="text-sm text-muted-foreground">Please wait a moment...</p>
+    </div>
+);
+
 
 export function RightColumn({
   activeView,
@@ -30,40 +41,55 @@ export function RightColumn({
   onGenerateQuiz,
   isChatLoading,
   isQuizLoading,
+  isSummaryLoading,
   isPdfUploaded,
 }: RightColumnProps) {
   const handleClose = () => setActiveView('chat');
 
+  const renderContent = () => {
+    switch (activeView) {
+      case 'chat':
+        return (
+          <ChatView
+            history={chatHistory}
+            onSubmit={onChatSubmit}
+            isLoading={isChatLoading}
+            isPdfUploaded={isPdfUploaded}
+          />
+        );
+      case 'summary':
+        if (isSummaryLoading) return <LoadingPlaceholder text="Generating summary..." />;
+        if (summary) return <SummaryView summary={summary} onClose={handleClose} />;
+        return null;
+      case 'quiz':
+        // The loading state is handled inside QuizView for new set generation
+        if (isQuizLoading && !quiz) return <LoadingPlaceholder text="Generating quiz..." />;
+        if (quiz) return (
+            <QuizView
+                quiz={quiz}
+                onClose={handleClose}
+                onGenerateQuiz={onGenerateQuiz}
+                isQuizLoading={isQuizLoading}
+            />
+        );
+        return null;
+      default:
+        return null;
+    }
+  };
+
   return (
-    <main className="flex-1 p-6 pl-0 overflow-hidden">
+    <main className="flex-1 p-4 pl-0 overflow-hidden">
       <AnimatePresence mode="wait">
         <motion.div
-          key={activeView + (quiz ? quiz.questions[0].question : '')} // Add quiz key to force re-render
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -20 }}
-          transition={{ duration: 0.3, ease: 'easeInOut' }}
-          className="h-full w-full bg-card rounded-lg"
+          key={activeView}
+          initial={{ opacity: 0, scale: 0.98 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0, scale: 0.98 }}
+          transition={{ duration: 0.2, ease: 'easeOut' }}
+          className="h-full w-full bg-card rounded-xl shadow-sm border"
         >
-          {activeView === 'chat' && (
-            <ChatView
-              history={chatHistory}
-              onSubmit={onChatSubmit}
-              isLoading={isChatLoading}
-              isPdfUploaded={isPdfUploaded}
-            />
-          )}
-          {activeView === 'summary' && summary && (
-            <SummaryView summary={summary} onClose={handleClose} />
-          )}
-          {activeView === 'quiz' && quiz && (
-            <QuizView 
-              quiz={quiz} 
-              onClose={handleClose} 
-              onGenerateQuiz={onGenerateQuiz}
-              isQuizLoading={isQuizLoading}
-            />
-          )}
+          {renderContent()}
         </motion.div>
       </AnimatePresence>
     </main>

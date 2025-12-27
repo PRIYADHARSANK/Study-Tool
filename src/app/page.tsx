@@ -48,10 +48,10 @@ export default function Home() {
   const handleGenerateSummary = async () => {
     if (!pdfFile) return;
     setLoading((prev) => ({ ...prev, summary: true }));
+    setActiveView('summary');
     try {
       const result = await summarizeLectureNotes({ pdfDataUri: pdfFile.dataUri });
       setSummary(result.summary);
-      setActiveView('summary');
     } catch (error) {
       console.error(error);
       toast({
@@ -59,6 +59,7 @@ export default function Home() {
         title: 'Error',
         description: 'Failed to generate summary.',
       });
+       setActiveView('chat');
     } finally {
       setLoading((prev) => ({ ...prev, summary: false }));
     }
@@ -67,13 +68,13 @@ export default function Home() {
   const handleGenerateQuiz = async (previousQuestions?: QuizQuestion[]) => {
     if (!pdfFile) return;
     setLoading((prev) => ({ ...prev, quiz: true }));
+    setActiveView('quiz');
     try {
       const result = await generateExamQuiz({ 
         pdfDataUri: pdfFile.dataUri,
         previousQuestions
       });
       setQuiz(result);
-      setActiveView('quiz');
     } catch (error) {
       console.error(error);
       toast({
@@ -81,6 +82,7 @@ export default function Home() {
         title: 'Error',
         description: 'Failed to generate quiz.',
       });
+      setActiveView('chat');
     } finally {
       setLoading((prev) => ({ ...prev, quiz: false }));
     }
@@ -127,6 +129,7 @@ export default function Home() {
         chatHistory={chatHistory}
         onChatSubmit={handleChatSubmit}
         onGenerateQuiz={handleGenerateQuiz}
+        isSummaryLoading={loading.summary}
         isChatLoading={loading.chat}
         isQuizLoading={loading.quiz}
         isPdfUploaded={!!pdfFile}
