@@ -22,7 +22,7 @@ const AnswerQuestionFromNotesInputSchema = z.object({
 export type AnswerQuestionFromNotesInput = z.infer<typeof AnswerQuestionFromNotesInputSchema>;
 
 const AnswerQuestionFromNotesOutputSchema = z.object({
-  answer: z.string().describe('The answer to the question about the PDF document.'),
+  answer: z.string().describe('The complete and detailed answer to the question about the PDF document.'),
 });
 export type AnswerQuestionFromNotesOutput = z.infer<typeof AnswerQuestionFromNotesOutputSchema>;
 
@@ -36,13 +36,14 @@ const prompt = ai.definePrompt({
   name: 'answerQuestionFromNotesPrompt',
   input: {schema: AnswerQuestionFromNotesInputSchema},
   output: {schema: AnswerQuestionFromNotesOutputSchema},
-  prompt: `You are an AI assistant that answers questions based on the content of a PDF document.
+  prompt: `You are an expert AI assistant that provides complete and detailed answers to questions based on the content of a PDF document.
 
   Use the following PDF document as the primary source of information.
   PDF Document: {{media url=pdfDataUri}}
 
-  Question: {{{question}}}
-  Answer: `,
+  Provide a complete and detailed answer to the following question.
+
+  Question: {{{question}}}`,
 });
 
 const answerQuestionFromNotesFlow = ai.defineFlow(
