@@ -4,7 +4,7 @@ import * as React from 'react';
 import { useForm, type SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { Paperclip, Send, Loader2, FileWarning } from 'lucide-react';
+import { Paperclip, Send, Loader2, FileWarning, Download } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -13,6 +13,14 @@ import { cn } from '@/lib/utils';
 import type { ChatMessage } from '@/lib/types';
 import { TextToSpeechButton } from '@/components/app/TextToSpeechButton';
 import { Bot } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import jsPDF from 'jspdf';
+
 
 interface ChatViewProps {
   history: ChatMessage[];
@@ -47,13 +55,64 @@ export function ChatView({ history, onSubmit, isLoading, isPdfUploaded }: ChatVi
     form.reset();
   };
 
+  const downloadTxt = () => {
+    const content = history
+      .map((msg) => `${msg.role === 'user' ? 'You' : 'AI'}: ${msg.content}`)
+      .join('\n\n');
+    const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'conversation.txt';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
+  const downloadPdf = () => {
+    const doc = new jsPDF();
+    let y = 10;
+    doc.setFontSize(12);
+
+    history.forEach((msg) => {
+      const text = `${msg.role === 'user' ? 'You' : 'AI'}: ${msg.content}`;
+      const splitText = doc.splitTextToSize(text, 180);
+      
+      if (y + (splitText.length * 10) > 280) {
+        doc.addPage();
+        y = 10;
+      }
+
+      doc.text(splitText, 10, y);
+      y += (splitText.length * 10);
+    });
+
+    doc.save('conversation.pdf');
+  };
+
   return (
     <Card className="h-full flex flex-col shadow-none border-none">
-      <CardHeader className="flex-row items-center gap-3">
-        <div className="p-2 bg-accent rounded-lg">
-          <Bot className="h-6 w-6 text-accent-foreground" />
+      <CardHeader className="flex-row items-center justify-between">
+        <div className='flex items-center gap-3'>
+          <div className="p-2 bg-accent rounded-lg">
+            <Bot className="h-6 w-6 text-accent-foreground" />
+          </div>
+          <CardTitle>Ask a Question</CardTitle>
         </div>
-        <CardTitle>Ask a Question</CardTitle>
+        {history.length > 0 && (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon">
+                <Download className="h-5 w-5" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+              <DropdownMenuItem onClick={downloadTxt}>Download as TXT</DropdownMenuItem>
+              <DropdownMenuItem onClick={downloadPdf}>Download as PDF</DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )}
       </CardHeader>
       <CardContent className="flex-1 overflow-hidden p-0 flex flex-col">
         <ScrollArea className="h-full p-6" ref={scrollAreaRef}>
