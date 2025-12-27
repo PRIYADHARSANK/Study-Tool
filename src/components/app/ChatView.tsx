@@ -4,16 +4,13 @@ import * as React from 'react';
 import { useForm, type SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import Image from 'next/image';
 import { Paperclip, Send, Loader2, FileWarning } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Form, FormControl, FormField, FormItem } from '@/components/ui/form';
 import { cn } from '@/lib/utils';
 import type { ChatMessage } from '@/lib/types';
-import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { TextToSpeechButton } from '@/components/app/TextToSpeechButton';
 import { Bot } from 'lucide-react';
 
@@ -28,9 +25,6 @@ const formSchema = z.object({
   question: z.string().min(1, 'Question cannot be empty.'),
 });
 type FormValues = z.infer<typeof formSchema>;
-
-const userAvatar = PlaceHolderImages.find(p => p.id === 'user-avatar');
-const aiAvatar = PlaceHolderImages.find(p => p.id === 'ai-avatar');
 
 export function ChatView({ history, onSubmit, isLoading, isPdfUploaded }: ChatViewProps) {
   const form = useForm<FormValues>({
@@ -76,10 +70,9 @@ export function ChatView({ history, onSubmit, isLoading, isPdfUploaded }: ChatVi
             {history.map((message, index) => (
               <div key={index} className={cn('flex items-start gap-4', message.role === 'user' && 'justify-end')}>
                 {message.role === 'ai' && (
-                  <Avatar className="h-9 w-9 border">
-                    {aiAvatar && <AvatarImage src={aiAvatar.imageUrl} alt="AI" data-ai-hint={aiAvatar.imageHint} />}
-                    <AvatarFallback>AI</AvatarFallback>
-                  </Avatar>
+                   <div className="p-2 bg-accent rounded-lg h-9 w-9 flex items-center justify-center">
+                    <Bot className="h-5 w-5 text-accent-foreground" />
+                  </div>
                 )}
                 <div
                   className={cn(
@@ -92,20 +85,13 @@ export function ChatView({ history, onSubmit, isLoading, isPdfUploaded }: ChatVi
                     <TextToSpeechButton text={message.content} className="-mb-2 -mr-2 mt-1" />
                   )}
                 </div>
-                {message.role === 'user' && (
-                  <Avatar className="h-9 w-9 border">
-                    {userAvatar && <AvatarImage src={userAvatar.imageUrl} alt="User" data-ai-hint={userAvatar.imageHint} />}
-                    <AvatarFallback>U</AvatarFallback>
-                  </Avatar>
-                )}
               </div>
             ))}
             {isLoading && history[history.length-1]?.role === 'user' && (
               <div className="flex items-start gap-4">
-                <Avatar className="h-9 w-9 border">
-                  {aiAvatar && <AvatarImage src={aiAvatar.imageUrl} alt="AI" data-ai-hint={aiAvatar.imageHint} />}
-                  <AvatarFallback>AI</AvatarFallback>
-                </Avatar>
+                <div className="p-2 bg-accent rounded-lg h-9 w-9 flex items-center justify-center">
+                  <Bot className="h-5 w-5 text-accent-foreground" />
+                </div>
                 <div className="bg-muted rounded-lg p-3 flex items-center space-x-2">
                     <span className="h-2 w-2 bg-foreground/50 rounded-full animate-pulse delay-0"></span>
                     <span className="h-2 w-2 bg-foreground/50 rounded-full animate-pulse delay-150"></span>
