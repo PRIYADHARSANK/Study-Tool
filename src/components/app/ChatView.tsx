@@ -5,7 +5,7 @@ import { useForm, type SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import Image from 'next/image';
-import { Paperclip, Send, Loader2, Info } from 'lucide-react';
+import { Paperclip, Send, Loader2, FileWarning } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -15,6 +15,7 @@ import { cn } from '@/lib/utils';
 import type { ChatMessage } from '@/lib/types';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { TextToSpeechButton } from '@/components/app/TextToSpeechButton';
+import { Bot } from 'lucide-react';
 
 interface ChatViewProps {
   history: ChatMessage[];
@@ -53,21 +54,21 @@ export function ChatView({ history, onSubmit, isLoading, isPdfUploaded }: ChatVi
   };
 
   return (
-    <Card className="h-full flex flex-col">
-      <CardHeader>
-        <CardTitle>Q&A Chat</CardTitle>
-        <CardDescription>Ask questions about your uploaded document.</CardDescription>
+    <Card className="h-full flex flex-col shadow-none border-none">
+      <CardHeader className="flex-row items-center gap-3">
+        <div className="p-2 bg-accent rounded-lg">
+          <Bot className="h-6 w-6 text-accent-foreground" />
+        </div>
+        <CardTitle>Ask a Question</CardTitle>
       </CardHeader>
-      <CardContent className="flex-1 overflow-hidden p-0">
+      <CardContent className="flex-1 overflow-hidden p-0 flex flex-col">
         <ScrollArea className="h-full p-6" ref={scrollAreaRef}>
           {history.length === 0 && (
-            <div className="flex flex-col items-center justify-center h-full text-center">
-              <Info className="h-12 w-12 text-muted-foreground mb-4" />
-              <h3 className="text-xl font-semibold">Welcome to the Q&A Chat</h3>
-              <p className="text-muted-foreground">
-                {isPdfUploaded
-                  ? 'Ask a question about your document to get started.'
-                  : 'Upload a PDF to start asking questions.'}
+            <div className="flex flex-col items-center justify-center h-full text-center text-muted-foreground">
+              <FileWarning className="h-16 w-16 mb-4" />
+              <h3 className="text-xl font-semibold text-foreground mb-1">Upload your notes</h3>
+              <p className="max-w-xs">
+                Please upload a PDF to start chatting with the AI.
               </p>
             </div>
           )}
@@ -114,36 +115,35 @@ export function ChatView({ history, onSubmit, isLoading, isPdfUploaded }: ChatVi
             )}
           </div>
         </ScrollArea>
+        <CardFooter className="pt-6">
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(handleFormSubmit)} className="flex w-full items-center space-x-2">
+              <FormField
+                control={form.control}
+                name="question"
+                render={({ field }) => (
+                  <FormItem className="flex-1">
+                    <FormControl>
+                      <div className="relative">
+                        <Input
+                          {...field}
+                          placeholder={isPdfUploaded ? 'Ask anything about your notes...' : 'Please upload a PDF first'}
+                          className="bg-background rounded-full h-12 pl-5 pr-14"
+                          disabled={!isPdfUploaded || isLoading}
+                          autoComplete="off"
+                        />
+                         <Button type="submit" size="icon" disabled={!isPdfUploaded || isLoading} className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full h-8 w-8 bg-primary hover:bg-primary/90">
+                            {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+                          </Button>
+                      </div>
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+            </form>
+          </Form>
+        </CardFooter>
       </CardContent>
-      <CardFooter className="pt-6">
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(handleFormSubmit)} className="flex w-full items-center space-x-2">
-            <FormField
-              control={form.control}
-              name="question"
-              render={({ field }) => (
-                <FormItem className="flex-1">
-                  <FormControl>
-                    <div className="relative">
-                      <Paperclip className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                      <Input
-                        {...field}
-                        placeholder={isPdfUploaded ? 'Type your question...' : 'Please upload a PDF first'}
-                        className="pl-10"
-                        disabled={!isPdfUploaded || isLoading}
-                        autoComplete="off"
-                      />
-                    </div>
-                  </FormControl>
-                </FormItem>
-              )}
-            />
-            <Button type="submit" size="icon" disabled={!isPdfUploaded || isLoading}>
-              {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
-            </Button>
-          </form>
-        </Form>
-      </CardFooter>
     </Card>
   );
 }

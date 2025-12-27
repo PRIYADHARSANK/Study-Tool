@@ -5,7 +5,7 @@ import { handleFileUpload } from '@/app/actions';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
-import { FileUp, FileText, Loader2, X } from 'lucide-react';
+import { FileUp, FileText, Loader2, X, UploadCloud } from 'lucide-react';
 
 type PdfFile = {
   name: string;
@@ -117,7 +117,7 @@ export function FileUpload({ onFileChange, uploadedFile }: FileUploadProps) {
       onClick={() => fileInputRef.current?.click()}
       className={cn(
         'border-2 border-dashed rounded-lg p-8 flex flex-col items-center justify-center text-center cursor-pointer transition-colors',
-        isDragging ? 'border-primary bg-primary/10' : 'border-border hover:border-primary/50'
+        isDragging ? 'border-primary bg-primary/10' : 'border-border/50 hover:border-primary/50'
       )}
     >
       <input type="file" ref={fileInputRef} onChange={handleFileChange} accept=".pdf" className="hidden" />
@@ -129,9 +129,9 @@ export function FileUpload({ onFileChange, uploadedFile }: FileUploadProps) {
         </>
       ) : (
         <>
-          <FileUp className="h-8 w-8 text-primary mb-2" />
-          <p className="font-medium">Drop your PDF here</p>
-          <p className="text-sm text-muted-foreground">or click to browse</p>
+          <UploadCloud className="h-8 w-8 text-primary mb-4" />
+          <p className="font-medium text-sm"><span className='text-primary'>Click to upload</span> or drag & drop</p>
+          <p className="text-xs text-muted-foreground mt-1">PDF notes</p>
         </>
       )}
     </div>

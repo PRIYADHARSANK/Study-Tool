@@ -31,7 +31,7 @@ export function RightColumn({
   const handleClose = () => setActiveView('chat');
 
   return (
-    <main className="flex-1 p-6 overflow-hidden">
+    <main className="flex-1 p-6 pl-0 overflow-hidden">
       <AnimatePresence mode="wait">
         <motion.div
           key={activeView}
@@ -39,7 +39,7 @@ export function RightColumn({
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -20 }}
           transition={{ duration: 0.3, ease: 'easeInOut' }}
-          className="h-full w-full"
+          className="h-full w-full bg-card rounded-lg"
         >
           {activeView === 'chat' && (
             <ChatView
