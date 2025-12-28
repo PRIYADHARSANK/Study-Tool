@@ -18,41 +18,41 @@ interface TextToSpeechButtonProps extends React.HTMLAttributes<HTMLButtonElement
 
 export function TextToSpeechButton({ text, className, ...props }: TextToSpeechButtonProps) {
   const [isSpeaking, setIsSpeaking] = useState(false);
-  const [audio, setAudio] = useState<HTMLAudioElement | null>(null);
 
+  // This effect will run only on the client side.
   useEffect(() => {
-    // This effect now correctly handles client-side only APIs
     const synth = window.speechSynthesis;
-    const utterance = new SpeechSynthesisUtterance(text);
 
-    const onEnd = () => setIsSpeaking(false);
-    utterance.addEventListener('end', onEnd);
-    
-    const onStart = () => setIsSpeaking(true);
-    utterance.addEventListener('start', onStart);
+    const handleSpeechEnd = () => {
+      setIsSpeaking(false);
+    };
 
+    // When the component unmounts, cancel any ongoing speech.
     return () => {
-      // Cleanup: remove listeners and cancel any speech
-      utterance.removeEventListener('end', onEnd);
-      utterance.removeEventListener('start', onStart);
-      if (synth.speaking) {
-        synth.cancel();
+      synth.cancel();
+      // Remove any listeners if they were attached to utterances
+      const utterances = synth.getUtterances();
+      if (utterances.length > 0) {
+        utterances[0].removeEventListener('end', handleSpeechEnd);
       }
     };
-  }, [text]);
-
+  }, []);
 
   const handleToggleSpeech = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation();
     const synth = window.speechSynthesis;
+
     if (synth.speaking) {
-        synth.cancel();
-        setIsSpeaking(false);
+      synth.cancel();
+      setIsSpeaking(false);
     } else {
+      if(text){
         const utterance = new SpeechSynthesisUtterance(text);
-        utterance.onend = () => setIsSpeaking(false);
         utterance.onstart = () => setIsSpeaking(true);
+        utterance.onend = () => setIsSpeaking(false);
+        utterance.onerror = () => setIsSpeaking(false);
         synth.speak(utterance);
+      }
     }
   };
 
