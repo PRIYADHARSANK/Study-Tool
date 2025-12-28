@@ -19,7 +19,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import jsPDF from 'jspdf';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 
 
 interface ChatViewProps {
@@ -198,6 +199,3 @@ export function ChatView({ history, onSubmit, isLoading, isPdfUploaded }: ChatVi
     </Card>
   );
 }
-
-// Add Card components to satisfy compiler
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
